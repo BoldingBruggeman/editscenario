@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def readme():
     with open('README.rst') as f:
@@ -12,7 +12,20 @@ setup(name='editscenario',
       author='Jorn Bruggeman',
       author_email='jorn@bolding-bruggeman.com',
       license='GPL',
-      scripts=['bin/editscenario.py', 'bin/nml2xml.py'],
-#      packages=['editscenario'],
+      classifiers=[
+          'Development Status :: 3 - Alpha',
+          'Intended Audience :: Developers',
+          'Topic :: Numerical Models :: Configuration Tools',
+          'License :: OSI Approved :: GPL License',
+          'Programming Language :: Python :: 2.7',
+      ],
+      entry_points={
+          'console_scripts': [
+                'editscenario=editscenario.editscenario:main',
+                'nml2xml=editscenario.nml2xml:main',
+          ]
+      },
+      packages=['editscenario'],
+#      packages=find_packages(exclude=['bin']),
       include_package_data=True,
       zip_safe=False)

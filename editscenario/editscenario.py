@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
-import sys, os, os.path, optparse
+import sys, os, os.path
 
 # Get GOTM-GUI directory from environment.
 if 'GOTMGUIDIR' in os.environ:
@@ -28,33 +28,39 @@ class Scenario(core.scenario.NamelistStore):
 def main():
     defschemadir = os.path.abspath(os.path.join(os.path.dirname(__file__),'schema'))
 
-    import optparse
-    parser = optparse.OptionParser(usage = 'usage: %prog [options] VALUESFILE [OUTPUTPATH] [assignments]')
-    parser.add_option('--schemadir',type='string',help='Directory where metadata (schemas, converters, default values) reside. Defaults to "%s".' % defschemadir)
-    parser.add_option('-g','--gui',action='store_true',help='Show the GUI for scenario editing.')
-    parser.add_option('-q','--quiet',action='store_false',dest='verbose',help='Suppress progress messages.')
-    parser.add_option('--skipvalidation',action='store_false',dest='validate',help='Skip scenario validation')
-    parser.add_option('-e','--export',choices=('nml','xml','dir','zip'),help='Save the modified scenario in the specified format: "xml" for a new XML-based values file, "dir" for a directory containing the XML-based values file plus associated data, "zip" for a ZIP file containing the XML-based values file plus associated data, and "nml" for a directory with namelist files. If this option is set, the OUTPUTPATH argument specifying the output path (directory or file, depending on the chosen export format) must be provided.')
-    parser.add_option('--targetversion',type='string',help='Desired values version to operate upon during GUI editing, validation, and export. If needed, values will be converted from their source version to this desired version upon load.')
-    parser.add_option('--root',type='string',help='Schema node to be used as root. If this is set, the corresponding subset of the schema will be shown on screen (with -g/--gui), validated, and exported to the namelist format (with -e/--export nml). It can be used to export a single namelist file only.')
+    import argparse
+#KB    parser = argparse.ArgumentParser(usage = 'usage: prog [options] VALUESFILE [OUTPUTPATH] [assignments]')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('valuefile',help='File with configuration variables')
+    parser.add_argument('--schemadir',help='Directory where metadata (schemas, converters, default values) reside. Defaults to "%s".' % defschemadir)
+    parser.add_argument('-g','--gui',action='store_true',help='Show the GUI for scenario editing.')
+    parser.add_argument('-q','--quiet',action='store_false',dest='verbose',help='Suppress progress messages.')
+    parser.add_argument('--skipvalidation',action='store_false',dest='validate',help='Skip scenario validation')
+#KB    parser.add_argument('-e','--export',choices=('nml','xml','dir','zip'),nargs=2,help='Save the modified scenario in the specified format: "xml" for a new XML-based values file, "dir" for a directory containing the XML-based values file plus associated data, "zip" for a ZIP file containing the XML-based values file plus associated data, and "nml" for a directory with namelist files. If this option is set, the OUTPUTPATH argument specifying the output path (directory or file, depending on the chosen export format) must be provided.')
+    parser.add_argument('-e','--export',nargs=2,help='Save the modified scenario in the specified format: "xml" for a new XML-based values file, "dir" for a directory containing the XML-based values file plus associated data, "zip" for a ZIP file containing the XML-based values file plus associated data, and "nml" for a directory with namelist files. This option requires two paramteters - the format just described and also the associated file/folder where the output is stored.')
+    parser.add_argument('--targetversion',help='Desired values version to operate upon during GUI editing, validation, and export. If needed, values will be converted from their source version to this desired version upon load.')
+    parser.add_argument('--root',help='Schema node to be used as root. If this is set, the corresponding subset of the schema will be shown on screen (with -g/--gui), validated, and exported to the namelist format (with -e/--export nml). It can be used to export a single namelist file only.')
+    parser.add_argument('--assignments',nargs='*',help='Command line setting of variables - overriding values set in file - e.g. timestep=0.4.')
     parser.set_defaults(export=None,gui=False,verbose=True,validate=True,schemadir=defschemadir,root=None,targetversion=None)
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
     
     global schemapath
     schemapath = options.schemadir
 
-    if options.export:
-        if len(args)<2:
-            print 'Two arguments required: the path to the values file and the output path.'
-            return 2
-    elif len(args)<1:
-        print 'One argument required: the path to the values file.'
-        return 2
+#    if options.export:
+#        if len(args)<2:
+#            print 'Two arguments required: the path to the values file and the output path.'
+#            return 2
+#    elif len(args)<1:
+#        print 'One argument required: the path to the values file.'
+#        return 2
     
-    # Get unnamed command line arguments
-    valuespath = os.path.abspath(args.pop(0))
+#KB    # Get unnamed command line arguments
+    valuespath = options.valuefile
+    exportformat = None
     if options.export:
-        targetpath = os.path.abspath(args.pop(0))
+        exportformat = options.export[0]
+        targetpath = options.export[1]
 
     # Add custom GOTM data types if possible.
     try:
@@ -103,13 +109,14 @@ def main():
     # Process environment-based assignments
     processAssignments(os.environ.items(),ignoremissing=True,quiet=not options.verbose)
     
-    # Process command line assignments
+    # Process command line assignments 
+#KB - can likely be made nicer - but the least intrusive
     assignments = []
-    for assignment in args:
-        if '=' not in assignment:
-            print 'Error: "%s" is not a valid assignment. Assignments must follow the pattern VARIABLE=VALUE.' % assignment
+    for item in options.assignments:
+        if '=' not in item:
+            print 'Error: "%s" is not a valid assignment. Assignments must follow the pattern VARIABLE=VALUE.' % item
             return 2
-        assignments.append(assignment.split('=',1))
+        assignments.append(item.split('=',1))
     if not processAssignments(assignments,quiet=not options.verbose): return 2
 
     # If a root node was specified, locate it within the schema.
@@ -160,16 +167,17 @@ def main():
                 print 'Scenario validated successfully.'
 
     # Export the scenario
-    if options.export=='nml':
+#KB some test could be added depending on the value of exportformat
+    if exportformat=='nml':
         if options.verbose: print 'Exporting values to namelist file(s) %s...' % targetpath
         scen.writeAsNamelists(targetpath,addcomments=True,allowmissingvalues=True,root=options.root)
-    elif options.export=='xml':
+    elif exportformat=='xml':
         if options.verbose: print 'Exporting values to XML-based values file (%s)...' % targetpath
         scen.save(targetpath)
-    elif options.export=='dir':
+    elif exportformat=='dir':
         if options.verbose: print 'Exporting packaged values to directory (%s)...' % targetpath
         scen.saveAll(targetpath,targetisdir=True)
-    elif options.export=='zip':
+    elif exportformat=='zip':
         if options.verbose: print 'Exporting packaged values to ZIP file (%s)...' % targetpath
         scen.saveAll(targetpath)
     else:
