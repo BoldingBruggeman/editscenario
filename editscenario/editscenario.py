@@ -29,14 +29,12 @@ def main():
     defschemadir = os.path.abspath(os.path.join(os.path.dirname(__file__),'schema'))
 
     import argparse
-#KB    parser = argparse.ArgumentParser(usage = 'usage: prog [options] VALUESFILE [OUTPUTPATH] [assignments]')
     parser = argparse.ArgumentParser()
-    parser.add_argument('valuefile',help='File with configuration variables')
+    parser.add_argument('valuepath',help='File with configuration variables')
     parser.add_argument('--schemadir',help='Directory where metadata (schemas, converters, default values) reside. Defaults to "%s".' % defschemadir)
     parser.add_argument('-g','--gui',action='store_true',help='Show the GUI for scenario editing.')
     parser.add_argument('-q','--quiet',action='store_false',dest='verbose',help='Suppress progress messages.')
     parser.add_argument('--skipvalidation',action='store_false',dest='validate',help='Skip scenario validation')
-#KB    parser.add_argument('-e','--export',choices=('nml','xml','dir','zip'),nargs=2,help='Save the modified scenario in the specified format: "xml" for a new XML-based values file, "dir" for a directory containing the XML-based values file plus associated data, "zip" for a ZIP file containing the XML-based values file plus associated data, and "nml" for a directory with namelist files. If this option is set, the OUTPUTPATH argument specifying the output path (directory or file, depending on the chosen export format) must be provided.')
     parser.add_argument('-e','--export',nargs=2,help='Save the modified scenario in the specified format: "xml" for a new XML-based values file, "dir" for a directory containing the XML-based values file plus associated data, "zip" for a ZIP file containing the XML-based values file plus associated data, and "nml" for a directory with namelist files. This option requires two paramteters - the format just described and also the associated file/folder where the output is stored.')
     parser.add_argument('--targetversion',help='Desired values version to operate upon during GUI editing, validation, and export. If needed, values will be converted from their source version to this desired version upon load.')
     parser.add_argument('--root',help='Schema node to be used as root. If this is set, the corresponding subset of the schema will be shown on screen (with -g/--gui), validated, and exported to the namelist format (with -e/--export nml). It can be used to export a single namelist file only.')
@@ -47,16 +45,9 @@ def main():
     global schemapath
     schemapath = options.schemadir
 
-#    if options.export:
-#        if len(args)<2:
-#            print 'Two arguments required: the path to the values file and the output path.'
-#            return 2
-#    elif len(args)<1:
-#        print 'One argument required: the path to the values file.'
-#        return 2
-    
-#KB    # Get unnamed command line arguments
-    valuespath = options.valuefile
+    valuespath = options.valuepath
+
+    # Get two export command line arguments
     exportformat = None
     if options.export:
         exportformat = options.export[0]
@@ -110,7 +101,6 @@ def main():
     processAssignments(os.environ.items(),ignoremissing=True,quiet=not options.verbose)
     
     # Process command line assignments 
-#KB - can likely be made nicer - but the least intrusive
     assignments = []
     for item in options.assignments:
         if '=' not in item:
@@ -167,7 +157,6 @@ def main():
                 print 'Scenario validated successfully.'
 
     # Export the scenario
-#KB some test could be added depending on the value of exportformat
     if exportformat=='nml':
         if options.verbose: print 'Exporting values to namelist file(s) %s...' % targetpath
         scen.writeAsNamelists(targetpath,addcomments=True,allowmissingvalues=True,root=options.root)
@@ -181,7 +170,7 @@ def main():
         if options.verbose: print 'Exporting packaged values to ZIP file (%s)...' % targetpath
         scen.saveAll(targetpath)
     else:
-        if options.verbose: print 'No further action taken.'
+        if options.verbose: print 'No further action taken. Use -e to export setup.'
 
     # Clean-up (delete temporary directories etc.)
     scen.release()

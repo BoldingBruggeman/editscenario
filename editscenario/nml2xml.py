@@ -20,31 +20,19 @@ import core.common,core.scenario,xmlstore.xmlstore
 
 def main():
     import argparse
-#    parser = optparse.OptionParser(usage = 'usage: %prog [options] SCHEMAPATH NAMELISTDIRECTORY OUTPUTPATH',description='Converts a directory with namelist files (NAMELISTDIRECTORY) into an XML-based values file (OUTPUTPATH), using an XML-based schema that describes the namelist structure. The path to the schema (SCHEMAPATH) may point to a single schema file, or to a directory with schemas (and other metadata such as converters, default values). In the latter case, the program will try to auto-detect the newest applicable schema, and then convert the values to the desired version (see --targetversion option) if that is specified.')
     parser = argparse.ArgumentParser(description='Converts a directory with namelist files (NMLPATH) into an XML-based values file (XMLPATH), using an XML-based schema that describes the namelist structure. The path to the schema (SCHEMAPATH) may point to a single schema file, or to a directory with schemas (and other metadata such as converters, default values). In the latter case, the program will try to auto-detect the newest applicable schema, and then convert the values to the desired version (see --targetversion option) if that is specified.')
     parser.add_argument('schemapath',help='File/folder with schema(s) and optionally converters')
     parser.add_argument('nmlpath',help='Directory with namelist file(s)')
-#    parser.add_argument('targetpath',help='Output XML-formatted file')
 
     parser.add_argument('--targetversion',help='Desired version to be used for the exported values file. If needed, values will be converted from the namelist version to this desired version. Note that this argument is only used if the provided SCHEMAPATH is a directory.')
     parser.add_argument('--root',help='Schema node to be used as root. By specifying this, a subset of the schema can be converted (e.g., a single namelist file).')
     parser.add_argument('-q','--quiet', action='store_true', help='Suppress output of progress messages')
-#KB    parser.add_argument('-e','--export', choices=('xml','dir','zip'), help='Output type: xml = XML-based values file [default], dir = directory with XML-based values file and associated data, zip = zip file with XML-based values file and associated data.')
     parser.add_argument('-e','--export', nargs=2, help='Output type: xml = XML-based values file, dir = directory with XML-based values file and associated data, zip = zip file with XML-based values file and associated data.')
     parser.set_defaults(quiet=False,targetversion=None,root=None,export='xml')
     options = parser.parse_args()
 
-#KB    if len(args)<3:
-#KB        print '3 arguments required:\n- path to the schema file.\n- path to the directory with namelists.\n- path to save the XML values file to.'
-#KB        return 2
-
-    # Get command line arguments
-#KB    schemapath = os.path.abspath(args.pop(0))
-#KB    nmlpath    = os.path.abspath(args.pop(0))
-#KB    targetpath = os.path.abspath(args.pop(0))
     schemapath = options.schemapath
     nmlpath    = options.nmlpath
-#    targetpath = options.targetpath
 
     # Check if the source path exists.
     if not os.path.exists(schemapath):
