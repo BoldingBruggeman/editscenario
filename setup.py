@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='editscenario',
-      version='0.1',
+      version='0.11',
       description='Generate Fortran namelists from XML-files',
       long_description=readme(),
       url='http://github.com/BoldingBruggeman/editscenario',
