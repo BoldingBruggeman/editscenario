@@ -101,13 +101,14 @@ def main():
     processAssignments(os.environ.items(),ignoremissing=True,quiet=not options.verbose)
     
     # Process command line assignments 
-    assignments = []
-    for item in options.assignments:
-        if '=' not in item:
-            print 'Error: "%s" is not a valid assignment. Assignments must follow the pattern VARIABLE=VALUE.' % item
-            return 2
-        assignments.append(item.split('=',1))
-    if not processAssignments(assignments,quiet=not options.verbose): return 2
+    if options.assignments:
+        assignments = []
+        for item in options.assignments:
+            if '=' not in item:
+                print 'Error: "%s" is not a valid assignment. Assignments must follow the pattern VARIABLE=VALUE.' % item
+                return 2
+            assignments.append(item.split('=',1))
+        if not processAssignments(assignments,quiet=not options.verbose): return 2
 
     # If a root node was specified, locate it within the schema.
     rootnode = None
