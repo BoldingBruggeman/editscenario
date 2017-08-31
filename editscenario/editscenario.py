@@ -2,25 +2,19 @@
 
 import sys, os, os.path
 
-# Get GOTM-GUI directory from environment.
-if 'GOTMGUIDIR' in os.environ:
-    relguipath = os.environ['GOTMGUIDIR']
-elif 'GOTMDIR' in os.environ:
-    relguipath = os.path.join(os.environ['GOTMDIR'],'gui.py')
-else:
-    print 'Cannot find GOTM-GUI directory. Please set environment variable "GOTMDIR" to the GOTM root (containing gui.py), or "GOTMGUIDIR" to the GOTM-GUI root, before running.'
-    sys.exit(1)
-
-# Add the GOTM-GUI directory to the search path.
-gotmguiroot = os.path.join(os.path.dirname(os.path.realpath(__file__)),relguipath)
-sys.path.append(gotmguiroot)
+# Add xmlstore and xmlplot directories to the search path.
+rootdir = os.path.dirname(os.path.realpath(__file__))
+path = sys.path[:]
+sys.path.append(os.path.join(rootdir, '../../xmlstore'))
+sys.path.append(os.path.join(rootdir, '../../xmlplot'))
+sys.path.append(os.path.join(rootdir, '../../gotmgui'))
 
 # Import modules form GOTM-GUI.
-import xmlstore.xmlstore,core.scenario
+import xmlstore.xmlstore,gotmgui.core.scenario
 
 # Generic scenario class which takes all schema and converter information from a directory [schemapath].
 schemapath = None
-class Scenario(core.scenario.NamelistStore):
+class Scenario(gotmgui.core.scenario.NamelistStore):
     @classmethod
     def getSchemaInfo(cls):
         return xmlstore.xmlstore.schemainfocache[schemapath]
