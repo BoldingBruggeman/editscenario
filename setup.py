@@ -13,11 +13,11 @@ setup(name='editscenario',
       author_email='jorn@bolding-bruggeman.com',
       license='GPL',
       classifiers=[
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
-          'Topic :: Numerical Models :: Configuration Tools',
-          'License :: OSI Approved :: GPL License',
-          'Programming Language :: Python :: 2.7',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+          'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+          'Programming Language :: Python :: 2 :: Only',
       ],
       entry_points={
           'console_scripts': [
@@ -27,5 +27,6 @@ setup(name='editscenario',
       },
       packages=['editscenario'],
 #      packages=find_packages(exclude=['bin']),
+      install_requires=['xmlstore'],
       include_package_data=True,
       zip_safe=False)
