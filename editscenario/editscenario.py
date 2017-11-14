@@ -125,9 +125,9 @@ def main():
 
     if options.gui:
         # Show scenario editor
-        from PyQt4 import QtGui
+        from xmlstore.qt_compat import QtWidgets
         import xmlstore.gui_qt4
-        app = QtGui.QApplication([' '])
+        app = QtWidgets.QApplication([' '])
         dialog = xmlstore.gui_qt4.PropertyEditorDialog(None,scen,title='Scenario editor',loadsave=True,rootnode=rootnode)
         dialog.resize(500,600)
         dialog.show()
