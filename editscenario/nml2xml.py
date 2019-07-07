@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
+
 import sys, os, os.path
 
 # Get GOTM-GUI directory from environment.
@@ -8,7 +10,7 @@ if 'GOTMGUIDIR' in os.environ:
 elif 'GOTMDIR' in os.environ:
     relguipath = os.path.join(os.environ['GOTMDIR'],'gui.py')
 else:
-    print 'Cannot find GOTM-GUI directory. Please set environment variable "GOTMDIR" to the GOTM root (containing gui.py), or "GOTMGUIDIR" to the GOTM-GUI root, before running.'
+    print('Cannot find GOTM-GUI directory. Please set environment variable "GOTMDIR" to the GOTM root (containing gui.py), or "GOTMGUIDIR" to the GOTM-GUI root, before running.')
     sys.exit(1)
 
 # Add the GOTM-GUI directory to the search path and import the common
@@ -36,14 +38,14 @@ def main():
 
     # Check if the source path exists.
     if not os.path.exists(schemapath):
-        print 'Error! The schema path "%s" does not exist.' % schemapath
+        print('Error! The schema path "%s" does not exist.' % schemapath)
         return 1
     if not os.path.exists(nmlpath):
-        print 'Source path "%s" does not exist.' % nmlpath
+        print('Source path "%s" does not exist.' % nmlpath)
         return 1
-        
+
     if not options.quiet: core.common.verbose = True
-    
+
     # Add custom GOTM data types if possible.
     try:
         import xmlstore.datatypes,xmlplot.data
@@ -54,7 +56,7 @@ def main():
     if os.path.isfile(schemapath):
         # A single schema file is specified.
         if options.targetversion is not None:
-            print '--targetversion argument is only used if the schema path is a directory. When it is a file, the exported values will always have the version of the specified schema.'
+            print('--targetversion argument is only used if the schema path is a directory. When it is a file, the exported values will always have the version of the specified schema.')
             return 2
         scen = core.scenario.NamelistStore(schemapath)
         scen.loadFromNamelists(nmlpath,strict=False,root=options.root)
@@ -68,7 +70,7 @@ def main():
             scen = Scenario.fromNamelists(nmlpath,targetversion=options.targetversion,root=options.root)
         except Exception,e:
             raise
-            print 'Could not find a schema that matches the namelists. Details:\n%s' % e
+            print('Could not find a schema that matches the namelists. Details:\n%s' % e)
             return 1
 
     # Export to scenario.
@@ -77,20 +79,21 @@ def main():
     if options.export:
         exportformat = options.export[0]
         targetpath = options.export[1]
-        if not options.quiet: print 'Saving values to "%s"...' % targetpath
+        if not options.quiet:
+            print('Saving values to "%s"...' % targetpath)
         if exportformat=='xml':
             scen.save(targetpath)
         else:
             scen.saveAll(targetpath,targetisdir=exportformat=='dir')
     else:
-        print 'No exports done - use -e otion'
+        print('No exports done - use -e otion')
 
     # Clean-up (delete temporary directories etc.)
     scen.release()
-    
+
     return 0
 
 # If the script has been run (as opposed to imported), enter the main loop.
-if (__name__=='__main__'):
+if __name__ == '__main__':
     ret = main()
     sys.exit(ret)
