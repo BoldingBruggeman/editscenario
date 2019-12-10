@@ -2,9 +2,8 @@
 from __future__ import print_function
 import sys, os, os.path
 
-# Add xmlstore and xmlplot directories to the search path.
+# If we are running from bbpy source: add xmlstore, xmlplot, gotmgui directories to the search path.
 rootdir = os.path.dirname(os.path.realpath(__file__))
-path = sys.path[:]
 sys.path.append(os.path.join(rootdir, '../../xmlstore'))
 sys.path.append(os.path.join(rootdir, '../../xmlplot'))
 sys.path.append(os.path.join(rootdir, '../../gotmgui'))
@@ -35,7 +34,7 @@ def main():
     parser.add_argument('--assignments',nargs='*',help='Command line setting of variables - overriding values set in file - e.g. timestep=0.4.')
     parser.set_defaults(export=None,gui=False,verbose=True,validate=True,schemadir=defschemadir,root=None,targetversion=None)
     options = parser.parse_args()
-    
+
     global schemapath
     schemapath = options.schemadir
 
@@ -70,7 +69,7 @@ def main():
         scen = Scenario.fromXmlFile(valuespath,targetstore=targetstore)
     if options.verbose:
         print('Operating on values file with version %s.' % scen.version)
-    
+
     context = {'container':xmlstore.datatypes.DataContainerDirectory(os.getcwd())}
     def processAssignments(assignments,ignoremissing=False,quiet=False):
         for name,val in assignments:
@@ -80,7 +79,7 @@ def main():
                 if options.verbose:
                     print('Node "%s" was not found in scenario.' % name)
                 return False
-                
+
             fullname = '/'.join(node.location)
             if len(val)>1 and val[0] in '\'"' and val[0]==val[-1]: val = val[1:-1]
             tp = node.getValueType(returnclass=True)
@@ -96,7 +95,7 @@ def main():
 
     # Process environment-based assignments
     processAssignments(os.environ.items(),ignoremissing=True,quiet=not options.verbose)
-    
+
     # Process command line assignments 
     if options.assignments:
         assignments = []
@@ -178,7 +177,7 @@ def main():
 
     # Clean-up (delete temporary directories etc.)
     scen.release()
-    
+
     return 0
 
 # If the script has been run (as opposed to imported), enter the main loop.

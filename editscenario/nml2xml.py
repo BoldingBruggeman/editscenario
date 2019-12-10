@@ -6,19 +6,16 @@ import sys, os, os.path
 
 # Get GOTM-GUI directory from environment.
 if 'GOTMGUIDIR' in os.environ:
-    relguipath = os.environ['GOTMGUIDIR']
-elif 'GOTMDIR' in os.environ:
-    relguipath = os.path.join(os.environ['GOTMDIR'],'gui.py')
-else:
-    print('Cannot find GOTM-GUI directory. Please set environment variable "GOTMDIR" to the GOTM root (containing gui.py), or "GOTMGUIDIR" to the GOTM-GUI root, before running.')
-    sys.exit(1)
+    sys.path.append(os.environ['GOTMGUIDIR'])
 
-# Add the GOTM-GUI directory to the search path and import the common
-# GOTM-GUI module (needed for command line parsing).
-gotmguiroot = os.path.join(os.path.dirname(os.path.realpath(__file__)),relguipath)
-sys.path.append(gotmguiroot)
+# If we are running from bbpy source: add xmlstore, xmlplot, gotmgui directories to the search path.
+rootdir = os.path.dirname(os.path.realpath(__file__))
+path = sys.path[:]
+sys.path.append(os.path.join(rootdir, '../../xmlstore'))
+sys.path.append(os.path.join(rootdir, '../../xmlplot'))
+sys.path.append(os.path.join(rootdir, '../../gotmgui'))
 
-import core.common,core.scenario,xmlstore.xmlstore
+import gotmgui.core.common, gotmgui.core.scenario, xmlstore.xmlstore
 
 def main():
     import argparse
@@ -44,7 +41,8 @@ def main():
         print('Source path "%s" does not exist.' % nmlpath)
         return 1
 
-    if not options.quiet: core.common.verbose = True
+    if not options.quiet:
+        gotmgui.core.common.verbose = True
 
     # Add custom GOTM data types if possible.
     try:
@@ -58,11 +56,11 @@ def main():
         if options.targetversion is not None:
             print('--targetversion argument is only used if the schema path is a directory. When it is a file, the exported values will always have the version of the specified schema.')
             return 2
-        scen = core.scenario.NamelistStore(schemapath)
+        scen = gotmgui.core.scenario.NamelistStore(schemapath)
         scen.loadFromNamelists(nmlpath,strict=False,root=options.root)
     else:
         # A directory with one or more schema files (and potentially converters) is specified.
-        class Scenario(core.scenario.NamelistStore):
+        class Scenario(gotmgui.core.scenario.NamelistStore):
             @classmethod
             def getSchemaInfo(cls):
                 return xmlstore.xmlstore.schemainfocache[schemapath]
