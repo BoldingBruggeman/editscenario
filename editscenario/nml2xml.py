@@ -66,7 +66,7 @@ def main():
                 return xmlstore.xmlstore.schemainfocache[schemapath]
         try:
             scen = Scenario.fromNamelists(nmlpath,targetversion=options.targetversion,root=options.root)
-        except Exception,e:
+        except Exception as e:
             raise
             print('Could not find a schema that matches the namelists. Details:\n%s' % e)
             return 1
