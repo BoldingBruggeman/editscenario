@@ -8,7 +8,7 @@ sys.path.append(os.path.join(rootdir, '../../xmlstore'))
 sys.path.append(os.path.join(rootdir, '../../xmlplot'))
 sys.path.append(os.path.join(rootdir, '../../gotmgui'))
 
-# Import modules form GOTM-GUI.
+# Import modules from GOTM-GUI.
 import xmlstore.xmlstore,gotmgui.core.scenario
 
 # Generic scenario class which takes all schema and converter information from a directory [schemapath].
