@@ -4,16 +4,13 @@ from __future__ import print_function
 
 import sys, os, os.path
 
-# Get GOTM-GUI directory from environment.
-if 'GOTMGUIDIR' in os.environ:
-    sys.path.append(os.environ['GOTMGUIDIR'])
-
 # If we are running from bbpy source: add xmlstore, xmlplot, gotmgui directories to the search path.
 rootdir = os.path.dirname(os.path.realpath(__file__))
-path = sys.path[:]
-sys.path.append(os.path.join(rootdir, '../../xmlstore'))
-sys.path.append(os.path.join(rootdir, '../../xmlplot'))
-sys.path.append(os.path.join(rootdir, '../../gotmgui'))
+if os.path.isdir(os.path.join(rootdir, '../../xmlstore/xmlstore')):
+    print('Detected that we are running from BBpy source. Using local xmlstore/xmlplot/gotmgui.')
+    sys.path.insert(0, os.path.join(rootdir, '../../xmlstore'))
+    sys.path.insert(0, os.path.join(rootdir, '../../xmlplot'))
+    sys.path.insert(0, os.path.join(rootdir, '../../gotmgui'))
 
 import gotmgui.core.common, gotmgui.core.scenario, xmlstore.xmlstore
 
